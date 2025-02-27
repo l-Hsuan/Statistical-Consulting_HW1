@@ -23,6 +23,8 @@ execute:
   message: false
 ---
 
+📂 **作業 GitHub 連結**：[Statistical-Consulting_HW1](https://github.com/l-Hsuan/Statistical-Consulting_HW1.git)
+
 ```{r setup, include=FALSE}
 library(tidyverse)
 ```
