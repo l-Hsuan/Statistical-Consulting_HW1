@@ -1,0 +1,137 @@
+---
+title: "Titanic Data Analysis (Homework1)"
+author: "I-Hsuan Wu"
+date: today
+format:
+ pdf:
+    include-in-header:
+      - text: |
+         \usepackage{setspace,relsize}
+         \usepackage{geometry}
+         \geometry{verbose,tmargin=2.5cm,bmargin=2.5cm,lmargin=2.5cm,rmargin=2.5cm}
+#mainfont: "Microsoft JhengHei UI"
+#mainfont: "Microsoft JhengHei"
+mainfont: "Microsoft JhengHei Bold"
+toc: true # 為了能寫繁體中文
+lang: zh-Tw
+documentclass: article
+pdf-engine: xelatex
+execute:
+  tidy: true
+  echo: true # 顯示code部分
+  warning: false
+  message: false
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+```
+
+# 1. 讀取 Titanic 數據集，並查看數據結構
+
+```{r}
+df <- read.csv("C:/Users/user/Downloads/titanic.csv")
+```
+
+
+*下表顯示了 Titanic 數據集的結構和基本統計資訊，包括變數的類型與連續型變數的數值分布。*
+
+```{r}
+str(df)
+summary(df)
+```
+
+*下面顯示了各類別變數的類別分布情況，例如生還人數、不同艙等乘客比例、性別比例等，以瞭解乘客的基本分佈。*
+
+```{r}
+table(df$Survived)
+table(df$Pclass)
+table(df$Sex)
+table(df$Embarked)
+```
+
+# 2.視覺化
+##  2.1乘客人口統計分析
+### 2.1.1 乘客年齡分布
+```{r}
+ggplot(df, aes(x = Age)) + 
+  geom_histogram(binwidth = 5, fill = "steelblue", color = "white") + 
+  labs(title = "乘客年齡分布", x = "年齡", y = "人數")
+```
+_大部分乘客的年齡集中在20-30歲之間，表示該年齡層佔多數。_
+
+### 2.1.2 年齡與性別的關聯性
+```{r}
+ggplot(df, aes(x = Age, fill = Sex)) + 
+  geom_density(alpha = 0.5) + 
+  labs(title = "年齡 vs. 性別分布", x = "年齡", y = "密度", fill = "性別")
+```
+_此圖顯示男性與女性的年齡分布。若女性年齡整體較小，則可能影響其生存率較高的結果。_
+
+```{r}
+ggplot(df, aes(x = Age, fill = Sex)) + 
+  geom_histogram(binwidth = 5, position = "dodge", alpha = 0.7) + 
+  labs(title = "年齡分布比較：男性 vs. 女性", x = "年齡", y = "人數", fill = "性別")
+```
+_此圖比較不同年齡層的男女乘客人數，在20歲以後，男性的人數明顯高於女性，且在65歲以上，幾乎沒有女性。。_
+
+## 2.2 生存率分析
+### 2.2.1 艙等與生存率
+```{r}
+ggplot(df, aes(x = Pclass, fill = as.factor(Survived))) + 
+  geom_bar(position = "fill") + 
+  labs(title = "生存率 vs. 艙等", y = "比例", x = "艙等", fill = "存活")
+```
+_一等艙乘客的生存率最高，而三等艙的生存率最低，顯示艙等與生存機率有顯著關聯。_
+
+### 2.2.2 性別與生存率
+```{r}
+ggplot(df, aes(x = Sex, fill = as.factor(Survived))) + 
+  geom_bar(position = "fill") + 
+  labs(title = "生存率 vs. 性別", y = "比例", x = "性別", fill = "存活")
+```
+_女性的生存率明顯高於男性。_
+
+### 2.2.3 艙等、性別與生存率
+```{r}
+ggplot(df, aes(x = Pclass, fill = as.factor(Survived))) + 
+  geom_bar(position = "fill") + 
+  facet_wrap(~Sex) +
+  labs(title = "生存率 vs. 艙等 vs. 性別", y = "比例")
+```
+_不同性別與艙等的生存率顯示：女性在所有艙等的生存率都明顯高於男性，特別是一等艙女性生存率最高，而三等艙男性生存率最低。_
+
+### 2.2.4 年齡與生存率
+```{r}
+ggplot(df, aes(x = Age, fill = as.factor(Survived))) + 
+  geom_density(alpha = 0.5) + 
+  labs(title = "生存者與非生存者的年齡分布", x = "年齡", y = "密度", fill = "存活")
+```
+_年齡與生存率的關聯顯示：年齡較小的乘客生存率較高，而年齡較大的乘客生存率則較低。_
+
+## 2.3 其他影響因素
+### 2.3.1 艙等與票價分布
+```{r}
+ggplot(df, aes(x = Pclass, y = Fare, fill = as.factor(Pclass))) + 
+  geom_boxplot() + 
+  labs(title = "艙等與票價分布", x = "艙等", y = "票價")
+```
+_票價的箱型圖顯示，一等艙的票價高於二、三等艙，顯示艙等與票價之間的差異。_
+
+### 2.3.2 登船港口與生存率
+```{r}
+ggplot(df, aes(x = Embarked, fill = as.factor(Survived))) + 
+  geom_bar(position = "fill") + 
+  labs(title = "生存率 vs. 登船港口", y = "比例", x = "登船港口", fill = "存活")
+```
+_從登船港口來看，從C港（Cherbourg）登船的乘客生存率最高。(因為未知的登船口資料從前面的類別結構來看只有兩筆，所以先忽略)_
+
+# 3. 統計描述與結論
+- **年齡分布**：大多數乘客年齡集中在20-30歲，且65歲以上幾乎都是男性乘客，孩童的生存率較高。
+- **性別影響**：女性的生存率顯著高於男性。
+- **艙等影響**：一等艙乘客的生存率遠高於二、三等艙。
+- **票價與艙等**：一等艙的票價高於二、三等艙。
+- **登船港口影響**：C港（Cherbourg）登船的乘客生存率最高。
+
+_以上結果顯示 Titanic 事故的生存機率可能受到多種因素影響，包括性別、艙等、年齡、票價與登船港口等。_
+
