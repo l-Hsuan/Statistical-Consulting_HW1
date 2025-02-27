@@ -32,7 +32,7 @@ library(tidyverse)
 # 1. 讀取 Titanic 數據集，並查看數據結構
 
 ```{r}
-df <- read.csv("C:/Users/user/Downloads/titanic.csv")
+df <- read.csv("C:/Users/user/Desktop/統計諮詢/HW1/titanic.csv")
 ```
 
 
